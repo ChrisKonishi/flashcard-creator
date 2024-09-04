@@ -5,6 +5,7 @@ import tempfile
 from vocabulary import GDSpreadsheet
 from flashcard import DeckCreator
 from slide_creator import SlideCreator
+from drive_uploader import DriveUploader
 
 def main(args: argparse.Namespace) -> None:
     gd = GDSpreadsheet(args.spreadsheet_id, args.credential_file, args.sheet_name)
@@ -21,6 +22,10 @@ def main(args: argparse.Namespace) -> None:
     output_file_slide = os.path.join(tempfile.gettempdir(), f'{args.deck_name}')
     sl.export_slide(output_file_slide)
 
+    du = DriveUploader(args.credential_file, args.drive_out_dir_id)
+    du(output_file_deck)
+    du(output_file_slide + '.pdf')
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--spreadsheet_id", type=str, default='1cvW0rMK9Chk_S8Nv1Af2yH7W6RP3oW4Y0OTGzg1ypEE')
@@ -28,5 +33,6 @@ if __name__ == "__main__":
     parser.add_argument("--sheet_name", type=str, default="Vocabulário")
     parser.add_argument("--deck_name", type=str, default="Guru Guru Deck")
     parser.add_argument("--deck_id", type=int, default=32131)
+    parser.add_argument("--drive_out_dir_id", type=str, default="1GLzi7FzlnMMguumXH5_zY-hyDMS6h1ma")
     args = parser.parse_args()
     main(args)
