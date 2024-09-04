@@ -1,5 +1,6 @@
 import pylatex as pl
 import subprocess
+import os
 
 from util import Columns, get_front_back_from_record
 
@@ -19,12 +20,6 @@ class Frame(pl.base_classes.Container):
     
     def __repr__(self) -> str:
         return f'Frame({self.txt})'
-
-        # string = Command(self.latex_name + num, self.title).dumps()
-        # if self.label is not None:
-        #     string += "%\n" + self.label.dumps()
-        # string += "%\n" + self.dumps_content()
-
 
 class SlideCreator:
     def __init__(self, title) -> None:
@@ -50,9 +45,31 @@ class SlideCreator:
         self.doc.append(Frame(front))
         self.doc.append(Frame(back))
     
+    def remove_lastpage(self, tex_file):
+        with open(tex_file, 'r') as file:
+            lines = file.readlines()
+
+        with open(tex_file, 'w') as file:
+            for line in lines:
+                # Skip the line with the lastpage package
+                if '\\usepackage{lastpage}' not in line:
+                    file.write(line)
+
     def export_slide(self, output_file: str) -> None:
-        # remove lastpage package
-        try:
-            self.doc.generate_pdf(output_file, clean_tex=False, compiler='xelatex')
-        except subprocess.CalledProcessError as e:
-            print(e) # Assume that the error is due to lastpage package, and the PDF is still generated
+        output_file_tex = output_file
+        self.doc.generate_tex(output_file_tex)
+        output_file_tex += '.tex'
+        self.remove_lastpage(output_file_tex)
+
+        subprocess.run(['xelatex', output_file_tex], check=True, cwd=os.path.dirname(output_file_tex))
+
+        self.cleanup(output_file)
+
+    def cleanup(self, output_file: str) -> None:
+        os.remove(output_file + '.aux')
+        os.remove(output_file + '.log')
+        os.remove(output_file + '.nav')
+        os.remove(output_file + '.out')
+        os.remove(output_file + '.snm')
+        os.remove(output_file + '.tex')
+        os.remove(output_file + '.toc')
