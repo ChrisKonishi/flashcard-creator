@@ -60,8 +60,9 @@ class SlideCreator:
         self.doc.generate_tex(output_file_tex)
         output_file_tex += '.tex'
         self.remove_lastpage(output_file_tex)
+        basename = os.path.basename(output_file_tex)
 
-        subprocess.run(['xelatex', output_file_tex], check=True, cwd=os.path.dirname(output_file_tex))
+        subprocess.run(['xelatex', basename], check=True, cwd=os.path.dirname(output_file_tex))
 
         self.cleanup(output_file)
 
