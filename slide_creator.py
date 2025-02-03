@@ -1,6 +1,7 @@
 import pylatex as pl
 import subprocess
 import os
+import random
 
 from util import Columns, get_front_back_from_record
 
@@ -34,6 +35,8 @@ class SlideCreator:
 
         self.doc.append(pl.NoEscape(r'\maketitle'))
 
+        self.entries = []
+
     def add_records_to_slide(self, records) -> None:
         for record in records:
             self.add_record_to_slide(record)
@@ -42,8 +45,10 @@ class SlideCreator:
         front, back = get_front_back_from_record(record, linebreak=pl.NoEscape('\\\\%\n\\vspace{0.8cm}%\n\\normalsize%\n'), front_break=True)
         
         # two slides per record, one for the front and one for the back
-        self.doc.append(Frame(front))
-        self.doc.append(Frame(back))
+        self.entries.append((front, back))
+
+    def shuffle(self) -> None:
+        random.shuffle(self.entries)
     
     def remove_lastpage(self, tex_file):
         with open(tex_file, 'r') as file:
@@ -56,6 +61,9 @@ class SlideCreator:
                     file.write(line)
 
     def export_slide(self, output_file: str) -> None:
+        for front, back in self.entries:
+            self.doc.append(Frame(front))
+            self.doc.append(Frame(back))
         output_file_tex = output_file
         self.doc.generate_tex(output_file_tex)
         output_file_tex += '.tex'
