@@ -25,13 +25,24 @@ class Frame(pl.base_classes.Container):
 class SlideCreator:
     def __init__(self, title) -> None:
         self.doc = pl.Document(documentclass='beamer')
-        self.doc.preamble.append(pl.Command('usepackage', 'fontspec'))
-        self.doc.preamble.append(pl.Command('usepackage', 'xeCJK'))
-        self.doc.preamble.append(pl.Command('setCJKmainfont', 'Noto Sans CJK JP'))
+        # self.doc.preamble.append(pl.Command('usepackage', 'fontspec'))
+        # self.doc.preamble.append(pl.Command('usepackage', 'xeCJK'))
+        # self.doc.preamble.append(pl.Command('setCJKmainfont', 'Noto Sans CJK JP'))
+        self.doc.preamble.append(pl.Command('usepackage', 'luatexja'))
+        self.doc.preamble.append(pl.NoEscape(r'\usepackage{luatexja-preset}'))
+        self.doc.preamble.append(pl.Command('setmainjfont', 'IPAMincho'))
+
+        self.doc.preamble.append(pl.Command('usepackage', 'geometry'))
+        self.doc.preamble.append(pl.NoEscape('\geometry{papersize={17cm, 10cm}}'))
+
         self.doc.preamble.append(pl.Command('title', title))
         self.doc.preamble.append(pl.Command('date', pl.NoEscape(r'\today')))
         author = 'グルグル組'
-        self.doc.preamble.append(pl.Command('author', author))    
+        self.doc.preamble.append(pl.Command('author', author))
+
+        self.doc.preamble.append(pl.Command('usetheme', 'CambridgeUS'))
+        # remove navigation bar
+        self.doc.preamble.append(pl.Command('setbeamertemplate', 'navigation symbols', extra_arguments=[pl.NoEscape('')]))
 
         self.doc.append(pl.NoEscape(r'\maketitle'))
 
@@ -70,7 +81,7 @@ class SlideCreator:
         self.remove_lastpage(output_file_tex)
         basename = os.path.basename(output_file_tex)
 
-        subprocess.run(['xelatex', basename], check=True, cwd=os.path.dirname(output_file_tex))
+        subprocess.run(['lualatex', '-interaction=nonstopmode', basename], check=True, cwd=os.path.dirname(output_file_tex))
 
         self.cleanup(output_file)
 
