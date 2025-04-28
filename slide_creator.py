@@ -43,6 +43,7 @@ class SlideCreator:
         self.doc.preamble.append(pl.Command('usetheme', 'CambridgeUS'))
         # remove navigation bar
         self.doc.preamble.append(pl.Command('setbeamertemplate', 'navigation symbols', extra_arguments=[pl.NoEscape('')]))
+        self.doc.preamble.append(pl.NoEscape(r'\setbeamertemplate{page number in head/foot}{}'))
 
         self.doc.append(pl.NoEscape(r'\maketitle'))
 
